@@ -1,0 +1,59 @@
+{
+  "id": "/",
+  "name": "TAC-EL Web",
+  "short_name": "TAC-EL Web",
+  "description": "TAC-EL on your computer: sign in by scanning a code with your phone, then use your chats and church life on a bigger screen.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0D2660",
+  "theme_color": "#0D2660",
+  "lang": "en",
+  "categories": [
+    "lifestyle",
+    "social"
+  ],
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Church Chat",
+      "url": "/dashboard/chat",
+      "icons": [
+        {
+          "src": "/icons/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Messages",
+      "url": "/dashboard/messages",
+      "icons": [
+        {
+          "src": "/icons/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,3 @@
+# TEST DEPLOYMENT: keep search engines out. Replace with "User-agent: *\nAllow: /" when the app goes live.
+User-agent: *
+Disallow: /
