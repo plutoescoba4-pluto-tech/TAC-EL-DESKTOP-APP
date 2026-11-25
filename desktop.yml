@@ -1,0 +1,76 @@
+# Builds the desktop installers for Windows, Mac and Linux in the cloud (GitHub Actions), so you do not need all three computers.
+# Run it: GitHub > Actions > "Build desktop installers" > Run workflow. Or push a tag like  desktop-v1.0.0  to also publish a Release.
+# Before the first run, set the repository variable TAC_APP_URL (Settings > Secrets and variables > Actions > Variables)
+# to your app address, for example https://tac-el-app.netlify.app
+name: Build desktop installers
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ['desktop-v*']
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        working-directory: desktop
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Set the app address
+        shell: bash
+        run: |
+          if [ -n "${{ vars.TAC_APP_URL }}" ]; then
+            echo '{"appUrl":"${{ vars.TAC_APP_URL }}"}' > config.json
+          fi
+          cat config.json
+
+      - run: npm install
+
+      - name: Build the installer
+        shell: bash
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: "false"   # test builds are not code-signed
+        run: |
+          if [ "${{ matrix.os }}" = "windows-latest" ]; then
+            npx electron-builder --win --publish never
+          elif [ "${{ matrix.os }}" = "macos-latest" ]; then
+            npx electron-builder --mac --publish never
+          else
+            npx electron-builder --linux --publish never
+          fi
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: tac-el-${{ matrix.os }}
+          path: |
+            desktop/dist/*.exe
+            desktop/dist/*.dmg
+            desktop/dist/*.AppImage
+            desktop/dist/*.deb
+          if-no-files-found: error
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/desktop-v')
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/*

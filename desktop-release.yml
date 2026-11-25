@@ -1,0 +1,43 @@
+# Builds the TAC-EL desktop installers on GitHub's own computers (free) and attaches them to a Release.
+# Start it: GitHub > Actions > "Build desktop app" > Run workflow. No Windows computer needed.
+name: Build desktop app
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            script: dist:win
+          - os: macos-latest
+            script: dist:mac
+          - os: ubuntu-latest
+            script: dist:linux
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install
+        working-directory: desktop
+        run: npm install
+      - name: Build installer
+        working-directory: desktop
+        run: npm run ${{ matrix.script }}
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: "false"
+      - name: Publish to the "desktop" release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: desktop
+          name: TAC-EL desktop app
+          files: |
+            desktop/dist/TAC-EL-Setup.exe
+            desktop/dist/TAC-EL.dmg
+            desktop/dist/TAC-EL.AppImage
+          fail_on_unmatched_files: false
